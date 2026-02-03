@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Dark theme base styles ── */
+@layer base {
+  body {
+    @apply bg-surface text-text-primary;
+    background-image: radial-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+/* ── Frosted glass card ── */
+@layer components {
+  .glass-card {
+    @apply bg-surface-card backdrop-blur-card border border-white/10 rounded-card shadow-card;
+  }
+
+  .glass-card-elevated {
+    @apply bg-surface-elevated backdrop-blur-card border border-white/10 rounded-card shadow-card shadow-glow;
+  }
+
+  /* Scanning effect for OCR visualization */
+  .scan-line {
+    @apply absolute left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary-electric to-transparent;
+    animation: scan 2s ease-in-out infinite;
+  }
+
+  /* Skeleton shimmer */
+  .skeleton {
+    @apply bg-surface-elevated rounded animate-pulse;
+  }
+
+  /* Status badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-success { @apply bg-status-success/20 text-status-success; }
+  .badge-info    { @apply bg-status-info/20 text-status-info; }
+  .badge-risk    { @apply bg-status-risk/20 text-status-risk-light; }
+
+  /* KPI card */
+  .kpi-card {
+    @apply glass-card p-4 hover:shadow-glow transition-all duration-300 cursor-pointer;
+  }
+
+  /* Risk entry */
+  .risk-entry {
+    @apply glass-card p-4 border-l-4 hover:bg-surface-elevated/50 transition-all duration-200;
+  }
+  .risk-entry.high   { @apply border-l-status-risk-light; }
+  .risk-entry.medium { @apply border-l-status-info; }
+  .risk-entry.low    { @apply border-l-status-success; }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/20;
+}
+
+/* ── PDF bbox highlight overlay ── */
+.bbox-highlight {
+  @apply absolute border-2 border-primary-electric bg-primary-electric/10 rounded-sm pointer-events-none;
+  transition: opacity 0.3s ease;
+}
+.bbox-highlight.active {
+  @apply bg-primary-electric/25 border-primary-hover;
+  animation: pulse 1.5s ease-in-out infinite;
+}
