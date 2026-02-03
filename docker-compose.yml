@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  # ── MySQL 8.0 ──────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: annual_ai
+      MYSQL_USER: annual_ai_user
+      MYSQL_PASSWORD: annual_ai_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+
+  # ── Redis ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # ── FastAPI Backend ────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file: ./backend/.env
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - app_data:/var/app/data
+
+  # ── Celery Worker ──────────────────────────────────────
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A app.core.celery_app worker
+      --loglevel=info
+      -Q q_preprocess,q_ocr,q_extract,q_llm,q_index,q_export
+      --concurrency=4
+    env_file: ./backend/.env
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - app_data:/var/app/data
+
+  # ── Frontend (dev) ─────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  app_data:
